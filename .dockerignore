@@ -1,0 +1,11 @@
+**/node_modules
+**/dist
+**/*.test.ts
+.git
+.claude
+.env
+.env.*
+data
+dev
+mosquitto
+themes

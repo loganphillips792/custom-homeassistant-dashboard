@@ -1,0 +1,48 @@
+/* Reads like a dictionary entry: serif headword, then pronunciation, part of speech and meaning. */
+.word-tile {
+  display: flex;
+  flex-direction: column;
+  /* If a small tile overflows, it loses the end of the definition rather than the word. */
+  justify-content: safe center;
+  height: 100%;
+  padding: calc(var(--space) * 2.5);
+  overflow: hidden;
+  border: 1px solid var(--seam);
+  border-radius: var(--radius);
+  background: var(--plate);
+}
+
+.word-tile[data-muted] {
+  opacity: 0.55;
+}
+
+.word-title {
+  margin: 0;
+  font-family: Georgia, "Noto Serif", serif;
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.word-phonetic {
+  margin: calc(var(--space) / 2) 0 0;
+  color: var(--ink-soft);
+  font-size: 15px;
+  font-style: italic;
+}
+
+.word-part {
+  margin: var(--space) 0 0;
+  color: var(--lamp);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.word-text {
+  margin: var(--space) 0 0;
+  color: var(--ink);
+  font-size: 17px;
+  line-height: 1.35;
+}

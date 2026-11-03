@@ -1,0 +1,357 @@
+/* A dark wall plate, read from across a room. Everything stays quiet except what's switched on,
+   which glows lamp-coloured. No web fonts: a kiosk shouldn't depend on the internet. */
+:root {
+  color-scheme: dark;
+
+  --wall: #16130f;
+  --plate: #1f1b16;
+  --plate-raised: #29241d;
+  --seam: #352f27;
+  --seam-strong: #4a4237;
+  --ink: #f1eadf;
+  --ink-soft: #aea496;
+  --ink-faint: #7d7468;
+  --lamp: #f2b45a;
+  --lamp-ink: #241808;
+  --fault: #e5806b;
+
+  --space: 8px;
+  --radius: 14px;
+  --radius-small: 8px;
+  --ease: 150ms ease-out;
+
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-variant-numeric: tabular-nums;
+  background: var(--wall);
+  color: var(--ink);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--wall);
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  min-height: 40px;
+  padding: 0 calc(var(--space) * 2);
+  border: 1px solid var(--seam);
+  border-radius: var(--radius-small);
+  background: var(--plate-raised);
+  cursor: pointer;
+  transition:
+    background var(--ease),
+    border-color var(--ease);
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--seam-strong);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+button.primary {
+  border-color: var(--lamp);
+  background: var(--lamp);
+  color: var(--lamp-ink);
+  font-weight: 600;
+}
+
+:focus-visible {
+  outline: 2px solid var(--lamp);
+  outline-offset: 2px;
+}
+
+input[type="text"],
+input[type="search"],
+input[type="number"],
+select {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 var(--space);
+  border: 1px solid var(--seam);
+  border-radius: var(--radius-small);
+  background: var(--wall);
+  user-select: text;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.stage {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.stage-main {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+.centered {
+  display: grid;
+  place-items: center;
+  min-height: 50vh;
+  padding: calc(var(--space) * 2);
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+/* The grid measures this element's width, so it must fill the column even when empty. */
+.grid {
+  width: 100%;
+}
+
+.banner {
+  padding: var(--space) calc(var(--space) * 2);
+  border-bottom: 1px solid var(--seam);
+  background: var(--plate-raised);
+  color: var(--fault);
+  /* Connecting takes a moment on every page load. Only a lasting problem should show. */
+  animation: banner-appear var(--ease) 1.5s both;
+}
+
+@keyframes banner-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.edit-button {
+  position: fixed;
+  z-index: 10;
+  right: calc(var(--space) * 2);
+  bottom: calc(var(--space) * 2);
+  opacity: 0.55;
+}
+
+.edit-button:hover,
+.edit-button:focus-visible {
+  opacity: 1;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space);
+  padding: var(--space) calc(var(--space) * 1.5);
+  border-bottom: 1px solid var(--seam);
+  background: var(--plate);
+}
+
+.toolbar-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space);
+}
+
+/* Edit mode */
+.cell {
+  position: relative;
+}
+
+.cell-body {
+  height: 100%;
+}
+
+.grid[data-editing] .cell-body {
+  pointer-events: none;
+}
+
+/* Lets a finger drag the tile instead of scrolling the page. */
+.grid[data-editing] .cell {
+  touch-action: none;
+  cursor: grab;
+}
+
+.grid[data-editing] .cell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px dashed var(--seam-strong);
+  border-radius: var(--radius);
+  pointer-events: none;
+}
+
+.cell[data-selected]::after {
+  border: 2px solid var(--lamp) !important;
+}
+
+.cell-controls {
+  position: absolute;
+  z-index: 2;
+  top: var(--space);
+  right: var(--space);
+  display: flex;
+  gap: calc(var(--space) / 2);
+  cursor: default;
+}
+
+.cell-controls button {
+  min-height: 32px;
+  padding: 0 var(--space);
+  font-size: 13px;
+}
+
+.react-grid-item.react-grid-placeholder {
+  border-radius: var(--radius);
+  background: var(--lamp);
+  opacity: 0.15;
+}
+
+.react-grid-item > .react-resizable-handle::after {
+  border-color: var(--ink-soft);
+}
+
+/* Settings panel. It floats over the grid, because narrowing the grid could cross a breakpoint and
+   send edits to a different layout from the one on screen. */
+.panel {
+  position: absolute;
+  z-index: 20;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 340px;
+  overflow-y: auto;
+  padding: calc(var(--space) * 2);
+  border-left: 1px solid var(--seam);
+  background: var(--plate);
+}
+
+.panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: calc(var(--space) * 2);
+}
+
+.panel h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+@media (max-width: 700px) {
+  .panel {
+    top: auto;
+    left: 0;
+    width: auto;
+    height: 60%;
+    border-top: 1px solid var(--seam);
+    border-left: 0;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space) / 2);
+  margin-bottom: calc(var(--space) * 2);
+}
+
+.field-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.hint {
+  margin: 0;
+  color: var(--ink-faint);
+  font-size: 13px;
+}
+
+.field-error {
+  color: var(--fault);
+  font-size: 13px;
+}
+
+.picker-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 280px;
+  margin-top: var(--space);
+  overflow-y: auto;
+  border: 1px solid var(--seam);
+  border-radius: var(--radius-small);
+  background: var(--wall);
+}
+
+.picker-list .hint {
+  padding: var(--space);
+}
+
+.picker-list button {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  justify-content: center;
+  min-height: 48px;
+  border: 0;
+  border-bottom: 1px solid var(--seam);
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.picker-list button[aria-selected="true"] {
+  background: var(--plate-raised);
+  box-shadow: inset 3px 0 0 var(--lamp);
+}
+
+.picker-list small {
+  color: var(--ink-faint);
+  overflow-wrap: anywhere;
+}
+
+/* Shared tile surface, for widgets and for placeholders */
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding: calc(var(--space) * 2);
+  overflow: hidden;
+  border: 1px solid var(--seam);
+  border-radius: var(--radius);
+  background: var(--plate);
+  color: var(--ink-soft);
+}
+
+.placeholder span {
+  color: var(--ink-faint);
+  font-size: 14px;
+}

@@ -1,0 +1,18 @@
+# Development only. See compose.yml.
+default_config:
+
+# Disposable lights, switches, sensors and other entities to test tiles against.
+demo:
+
+# Stand-ins for the real instance's word sensors, with the same entity ids and attributes.
+template:
+  - sensor:
+      - name: Word of the Day
+        unique_id: dev_word_of_the_day
+        state: laconic
+      - name: Word Definition
+        unique_id: dev_word_definition
+        state: Using as few words as possible; pithy and concise.
+        attributes:
+          phonetic: /ləˈkɒnɪk/
+          meanings: "{{ [{'partOfSpeech': 'adjective'}] }}"

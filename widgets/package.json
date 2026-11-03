@@ -1,0 +1,17 @@
+{
+  "name": "@dashboard/widgets",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@dashboard/shared": "workspace:*",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "react": "^19.3.1"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}
