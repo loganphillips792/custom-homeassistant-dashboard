@@ -1,0 +1,5 @@
+# Development only. See compose.yml.
+default_config:
+
+# Disposable lights, switches, sensors and other entities to test tiles against.
+demo:

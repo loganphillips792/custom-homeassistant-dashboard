@@ -1,0 +1,50 @@
+# Throwaway Home Assistant for developing the dashboard, plus the dashboard's own
+# production image behind the "app" profile.
+#
+#   docker compose up -d homeassistant       # then: pnpm ha:setup && pnpm dev
+#   docker compose --profile app up -d --build
+#   docker compose --profile app down -v     # deletes this HA and the saved layouts
+#
+# Uses Docker's default bridge network, because host mode doesn't reach macOS on Docker
+# Desktop. All state is in named volumes, so this can't touch a real Home Assistant's
+# data directory.
+
+services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    restart: unless-stopped
+    # Home Assistant flushes its recorder database on shutdown, and Docker's default 10s
+    # can cut that off.
+    stop_grace_period: 60s
+    environment:
+      - TZ=${TZ:-UTC}
+    ports:
+      # Not 8123, so this can run beside a real Home Assistant on the same machine.
+      - "${HA_PORT:-8124}:8123"
+    volumes:
+      - homeassistant-config:/config
+      # Loads the demo integration, which provides disposable lights, switches and sensors.
+      - ./dev/homeassistant/configuration.yaml:/config/configuration.yaml:ro
+
+  dashboard:
+    profiles: [app]
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - homeassistant
+    # HA_TOKEN comes from here, written by `pnpm ha:setup`.
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - HA_URL=http://homeassistant:8123
+      - DB_PATH=/data/dashboard.db
+      - PORT=3000
+    ports:
+      - "${DASHBOARD_PORT:-3000}:3000"
+    volumes:
+      - dashboard-data:/data
+
+volumes:
+  homeassistant-config:
+  dashboard-data:
