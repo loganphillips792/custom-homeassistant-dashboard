@@ -1,4 +1,4 @@
-// Prepares the development Home Assistant from compose.yml: completes onboarding with a
+// Prepares the demo Home Assistant from compose.yml: completes onboarding with a
 // generated test owner, creates a long-lived token and writes both to the gitignored .env.
 // Safe to re-run. Credentials are never printed.
 import { randomBytes } from "node:crypto";
@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 const ENV_PATH = fileURLToPath(new URL("../.env", import.meta.url));
 const READY_TIMEOUT_MS = 5 * 60_000;
 const RESET_HINT =
-  "Reset the development instance with `docker compose --profile app down -v`, start it again, and re-run this script.";
+  "Reset the demo instance with `docker compose --profile demo down -v`, start it again, and re-run this script. Your real data under ~/docker-volumes isn't affected.";
 
 function readEnvFile() {
   if (!existsSync(ENV_PATH)) return {};

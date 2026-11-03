@@ -3,7 +3,8 @@ import { z } from "zod";
 
 const EnvSchema = z.object({
   HA_URL: z.url().transform((url) => url.replace(/\/+$/, "")),
-  HA_TOKEN: z.string().min(1),
+  // May be empty, so that the dashboard can load and show it isn't connected.
+  HA_TOKEN: z.string().default(""),
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
   DB_PATH: z.string().min(1).default(fileURLToPath(new URL("../../data/dashboard.db", import.meta.url))),
 });

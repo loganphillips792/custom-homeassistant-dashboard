@@ -42,6 +42,10 @@ export function startHaClient(options: { url: string; token: string; hub: Entity
   };
 
   const connect = async () => {
+    if (!token) {
+      console.error("No Home Assistant token is set, so the dashboard won't connect. See .env.example.");
+      return;
+    }
     const auth = createLongLivedTokenAuth(url, token);
     for (let attempt = 0; ; attempt++) {
       try {
