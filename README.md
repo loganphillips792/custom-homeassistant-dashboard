@@ -99,6 +99,24 @@ Until step 4, the dashboard loads and shows that Home Assistant isn't connected.
 
 The dashboard's layouts are stored separately from `pnpm dev`, so tiles saved in one don't appear in the other.
 
+### After adding or changing the token
+
+Run the same command you used to start the stack:
+
+```bash
+docker compose up -d --build
+```
+
+Compose compares the running containers to your config, so it recreates only the dashboard, because that's the only service using `DASHBOARD_HA_TOKEN`. Home Assistant, Mosquitto and Zigbee2MQTT keep running untouched.
+
+`docker compose restart` won't work here, because it reuses the container's old settings and wouldn't pick up the new token.
+
+To check it worked, run this and look for `"homeAssistant":true`:
+
+```bash
+curl localhost:3000/api/health
+```
+
 ## Add a widget
 
 Add a folder under `widgets/`. There's no registration step, and the folder name is the widget's type.
