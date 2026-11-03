@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import entityWidget from "../../widgets/entity/settings.ts";
+import wordWidget from "../../widgets/word/settings.ts";
 import { fieldsFromSchema } from "./settingsFields.ts";
 
 describe("fieldsFromSchema", () => {
@@ -32,6 +33,22 @@ describe("fieldsFromSchema", () => {
       { key: "enabled", kind: "boolean", required: false },
       { key: "mode", kind: "enum", options: ["a", "b"] },
     ]);
+  });
+});
+
+describe("word widget schema", () => {
+  it("keeps the entity picker on fields with defaults", () => {
+    expect(fieldsFromSchema(wordWidget.schema)).toMatchObject([
+      { key: "wordEntity", title: "Word sensor", kind: "entity", required: false },
+      { key: "definitionEntity", title: "Definition sensor", kind: "entity", required: false },
+    ]);
+  });
+
+  it("works without any settings", () => {
+    expect(wordWidget.schema.parse({})).toEqual({
+      wordEntity: "sensor.word_of_the_day",
+      definitionEntity: "sensor.word_definition",
+    });
   });
 });
 

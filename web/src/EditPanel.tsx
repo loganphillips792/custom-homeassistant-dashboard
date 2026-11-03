@@ -22,9 +22,14 @@ function EntityPicker(props: { value: unknown; onChange: (id: string) => void })
         (entity) =>
           entity.entity_id.includes(needle) || friendlyName(entity).toLowerCase().includes(needle),
       )
-      .sort((a, b) => friendlyName(a).localeCompare(friendlyName(b)))
+      .sort(
+        (a, b) =>
+          // The current choice goes first, so the result limit can't hide it.
+          Number(b.entity_id === value) - Number(a.entity_id === value) ||
+          friendlyName(a).localeCompare(friendlyName(b)),
+      )
       .slice(0, MAX_PICKER_RESULTS);
-  }, [entities, search]);
+  }, [entities, search, value]);
 
   return (
     <div className="picker">
@@ -116,7 +121,10 @@ export function EditPanel(props: {
 }) {
   const { widget, definition, onChange, onClose } = props;
   const fields = useMemo(() => fieldsFromSchema(definition.schema), [definition]);
-  const [values, setValues] = useState(widget.settings);
+  // Starts from the parsed settings, so the form shows the schema's defaults.
+  const [values, setValues] = useState<Record<string, unknown>>(
+    () => definition.schema.safeParse(widget.settings).data ?? widget.settings,
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const setField = (key: string, value: unknown) => {
